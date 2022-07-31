@@ -1,15 +1,22 @@
+// Utililty function to trigger camera texture creation event and access texture data
 const eventDispatch = (name, data) => {
     const e = new CustomEvent(name, {detail: data})
     window.dispatchEvent(e)
 }
 
 const runXR = (frame) => {
+    // Pose provides extrinsic, linear velocity, angular velocity and views
     const pose = frame.getViewerPose(refSpace);
-    if (!pose) {return;}
+    if (!pose) {return;} // Not guaranteed that pose be available for every XRFrame
+
+    // Query different views in pose, for AR view.camera contains the camera texture
     for (const view of pose.views) {
         if (view.camera) {
+
+            // Raw Camera Access is implemented with getCameraImage()
             const cameraTexture = glBinding.getCameraImage(view.camera);
-            // console.log(cameraTexture);
+            
+            // window can listen to this event to access cameraTexture
             eventDispatch('newCameraTexture', {tex: cameraTexture})
         }
     }
