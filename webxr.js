@@ -1,3 +1,8 @@
+const eventDispatch = (name, data) => {
+    const e = new CustomEvent(name, {detail: data})
+    window.dispatchEvent(e)
+}
+
 const runXR = (frame) => {
     const pose = frame.getViewerPose(refSpace);
     if (!pose) {return;}
@@ -5,11 +10,10 @@ const runXR = (frame) => {
         if (view.camera) {
             const cameraTexture = glBinding.getCameraImage(view.camera);
             // console.log(cameraTexture);
+            eventDispatch('newCameraTexture', {tex: cameraTexture})
         }
     }
-
 }
-
 
 const requestSession = async () => {
     // Session type and features
