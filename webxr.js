@@ -13,11 +13,17 @@ const runXR = (frame) => {
     for (const view of pose.views) {
         if (view.camera) {
 
+            const {baseLayer} = session.renderState
+
+            const viewport = baseLayer.getViewport(view)
+
+            const {width, height} = viewport
             // Raw Camera Access is implemented with getCameraImage()
             const cameraTexture = glBinding.getCameraImage(view.camera);
-            
+
             // window can listen to this event to access cameraTexture
             eventDispatch('newCameraTexture', {tex: cameraTexture})
+            eventDispatch('parameters', {glctx: ctx, height: height, width: width})
         }
     }
 }
@@ -30,7 +36,7 @@ const requestSession = async () => {
     }
 
     // Request Session and update baselayer
-    const session = await navigator.xr.requestSession(sessionType, sessionInit)
+    session = await navigator.xr.requestSession(sessionType, sessionInit)
     session.updateRenderState({
         baseLayer: new XRWebGLLayer(session, ctx)
     })
@@ -57,9 +63,10 @@ const startWebXRSession = () => {
     else console.log("WebXR not supported")
 }
 
-const canvas = new OffscreenCanvas(1,1)
+const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('webgl', {xrCompatible: true})
 let glBinding = null
 let refSpace = null
+let session = null
 const button = document.getElementById('ar')
 button.onclick = () => startWebXRSession()
