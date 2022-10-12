@@ -9,10 +9,12 @@ const runXR = (frame) => {
     const pose = frame.getViewerPose(refSpace);
     if (!pose) {return;} // Not guaranteed that pose be available for every XRFrame
 
-    // Query different views in pose, for AR view.camera contains the camera texture
+    // Query different views in pose
     for (const view of pose.views) {
+        // Get Depth information from view
         const depthInfo = frame.getDepthInformation(view);
         if(depthInfo) {
+            // The depth of pixel coordinate at x,y.
             const depthInMeters = depthInfo.getDepthInMeters(0, 0);
             console.log(depthInMeters)
         }
