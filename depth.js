@@ -4,6 +4,22 @@ const eventDispatch = (name, data) => {
     window.dispatchEvent(e)
 }
 
+var saveByteArray = (function () {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (data, name) {
+        var blob = new Blob(data),
+            url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = name;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+}());
+
+let count = 0
+
 const runXR = (frame) => {
     // Pose provides extrinsic, linear velocity, angular velocity and views
     const pose = frame.getViewerPose(refSpace);
@@ -14,9 +30,23 @@ const runXR = (frame) => {
         // Get Depth information from view
         const depthInfo = frame.getDepthInformation(view);
         if(depthInfo) {
+            count += 1
             // The depth of pixel coordinate at x,y.
-            const depthInMeters = depthInfo.getDepthInMeters(0, 0);
-            console.log(depthInMeters)
+            // const depthInMeters = depthInfo.getDepthInMeters(0.5, 0.5);
+            console.log(depthInfo.width, depthInfo.height)
+            const uint16 = new Uint16Array(depthInfo.data);
+            // console.log(uint16)
+
+            if (count === 200) {
+                saveByteArray([uint16], 'd.txt');
+                console.log(depthInfo.rawValueToMeters)
+            // const index = depthInfo.width/2 + depthInfo.height/2 * depthInfo.width;
+            // const depthPre = uint16[index] * depthInfo.rawValueToMeters;
+            // console.log(depthPre)
+                
+            //     const depthPre = depthInfo.getDepthInMeters(10, 10);
+            //     console.log(depthPre)
+            }
         }
     }
 }
